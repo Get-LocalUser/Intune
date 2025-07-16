@@ -1,15 +1,25 @@
 <#
+.NOTES
+    - Requires RSAT: Active Directory tools installed.
+    - Requires Microsoft.Graph.Beta module installed (will auto-install if missing).
+    - CSV must contain a column named "Asset Tag".
+
+    Author:       Get-LocalUser
+    Last Updated: 07/15/2025
+
 .SYNOPSIS
     Device Lookup Script - Searches for computer records across Active Directory, Intune, & Autopilot.
 
 .DESCRIPTION
-    This script allows you to search for computers using a single name or a bulk list (via CSV).
-    It checks if the device exists in:
-      - Active Directory (AD)
-      - Microsoft Intune (via Microsoft Graph API)
-      - Autopilot (via Microsoft Graph API)
+    This script allows administrators to search for one or more devices by name or asset tag
+    across three platforms:
+        - Active Directory AD
+        - Microsoft Intune via Microsoft Graph Beta API
+        - Windows Autopilot via Microsoft Graph Beta API
 
-    Results are shown in the console and optionally exported to a CSV file in your Downloads folder.
+    You can run the script interactively, pass a single computer name as a parameter, or provide
+    a CSV file for bulk searching. Results will display in the console and optionally be exported
+    to a CSV file in your Downloads folder.
 
 .FUNCTIONALITY
     - Imports and verifies required modules (ActiveDirectory, Microsoft.Graph.Beta).
@@ -19,21 +29,6 @@
     - Outputs results with ✓ markers or 'False'.
     - Exports bulk results to CSV in the user's Downloads folder.
     - Asks whether to disconnect from Microsoft Graph after completion.
-
-.EXAMPLE
-    # Single device (prompted interactively)
-    .\Find-Device.ps1
-
-    # Single device via parameter
-    .\Find-Device.ps1 -ComputerName "P250101"
-
-    # Bulk mode via CSV
-    .\Find-Device.ps1 -CsvPath "C:\path\to\computers.csv"
-
-.NOTES
-    - Requires RSAT: Active Directory tools installed.
-    - Requires Microsoft.Graph.Beta module installed (will auto-install if missing).
-    - CSV must contain a column named "Asset Tag".
 #>
 
 
