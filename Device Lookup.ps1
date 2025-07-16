@@ -5,7 +5,7 @@
     - CSV must contain a column named "Asset Tag".
 
     Author:       Get-LocalUser
-    Last Updated: 07/15/2025
+    Last Updated: 07/16/2025
 
 .SYNOPSIS
     Device Lookup Script - Searches for computer records across Active Directory, Intune, & Autopilot.
@@ -228,7 +228,7 @@ function Search-BulkComputers {
 }
 
 
-function Specify-Mode {
+function Find-Computer {
     Write-Host "`nSelect Search Mode:" -ForegroundColor Cyan
     Write-Host "1. Search Single Computer"
     Write-Host "2. Search Bulk from CSV"
@@ -267,4 +267,4 @@ function Specify-Mode {
 Initialize-Modules
 
 # Step 2: Run interactive mode selection
-Specify-Mode
+Find-Computer
