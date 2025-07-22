@@ -32,8 +32,6 @@
 #>
 
 
-
-# Computer Search Script - Single and Bulk Mode
 param(
     [Parameter(Mandatory=$false)]
     [string]$ComputerName,
