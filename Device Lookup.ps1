@@ -23,22 +23,13 @@
 
 .FUNCTIONALITY
     - Imports and verifies required modules (ActiveDirectory, Microsoft.Graph.Beta).
-    - Connects to Microsoft Graph (Device.Read.All scope required).
+    - Connects to Microsoft Graph ('Device.Read.All' scope required).
     - Searches for devices across AD, Intune, & Autopilot.
     - Supports both interactive and automated use.
     - Outputs results with ✓ markers or 'False'.
     - Exports bulk results to CSV in the user's Downloads folder.
     - Asks whether to disconnect from Microsoft Graph after completion.
 #>
-
-
-param(
-    [Parameter(Mandatory=$false)]
-    [string]$ComputerName,
-    
-    [Parameter(Mandatory=$false)]
-    [string]$CsvPath
-)
 
 
 # ------------------------------ Install & Import Modules ------------------------------
