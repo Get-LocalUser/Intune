@@ -62,7 +62,7 @@ function Initialize-Modules {
     # Microsoft Graph Beta
     if (-not (Get-InstalledModule -Name Microsoft.Graph.Beta -ErrorAction SilentlyContinue)) {
         Write-Host "Installing Graph module. This will take a few minutes..." -ForegroundColor Yellow
-        Install-Module -Name Microsoft.Graph.Beta -Scope CurrentUser -Force
+        Install-Module -Name Microsoft.Graph.Beta -Scope CurrentUser -Force -Verbose
     }
     Import-Module Microsoft.Graph.Beta -ErrorAction Ignore
     Write-Host "Graph module imported successfully." -ForegroundColor Yellow
@@ -242,17 +242,23 @@ function Find-Computer {
             Search-SingleComputer -Computer $computer
         }
         "2" {
-            $csvPath = Read-Host "Enter full path to the CSV file"
-            if (-not (Test-Path $csvPath)) {
-                Write-Host "Invalid CSV path. Exiting." -ForegroundColor Red
+            Add-Type -AssemblyName System.Windows.Forms
+            $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+            $openFileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
+            $openFileDialog.Title = "Select the CSV file"
+            $openFileDialog.InitialDirectory = [Environment]::GetFolderPath("Desktop")
+
+            if ($openFileDialog.ShowDialog() -eq "OK") {
+                $csvPath = $openFileDialog.FileName
+                $allResults = Search-BulkComputers -CsvPath $csvPath
+                $allResults | Format-Table -AutoSize
+            } else {
+                Write-Host "No file selected. Exiting." -ForegroundColor Red
                 exit
             }
-            $allResults = Search-BulkComputers -CsvPath $csvPath
-            $allResults | Format-Table -AutoSize
         }
         default {
             Write-Host "Invalid selection. Please enter 1 or 2." -ForegroundColor Red
-            Specify-Mode # recursively prompt again
         }
     }
 }
