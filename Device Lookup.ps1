@@ -31,16 +31,14 @@
     - Asks whether to disconnect from Microsoft Graph after completion.
 #>
 
-
-# ------------------------------ Install & Import Modules ------------------------------
-
+# ------------------------ Module Initialization ------------------------
 function Initialize-Modules {
     if ($Global:DeviceScriptInitialized) {
         Write-Host "Modules already initialized. Skipping module checks." -ForegroundColor Green
         return
     }
 
-    # ------------------------ Module Initialization ------------------------
+    # -------------------- Install & Import Modules ---------------------
 
     # Active Directory
     if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
