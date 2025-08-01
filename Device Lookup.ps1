@@ -5,7 +5,7 @@
     - CSV must contain a column named "Asset Tag".
 
     Author:       Get-LocalUser
-    Last Updated: 07/16/2025
+    Last Updated: 08/01/2025
 
 .SYNOPSIS
     Device Lookup Script - Searches for computer records across Active Directory, Intune, & Autopilot.
