@@ -13,9 +13,9 @@
 .DESCRIPTION
     This script allows administrators to search for one or more devices by name or asset tag
     across three platforms:
-        - Active Directory AD
-        - Microsoft Intune via Microsoft Graph Beta API
-        - Windows Autopilot via Microsoft Graph Beta API
+        - Active Directory
+        - Intune
+        - Autopilot
 
     You can run the script interactively, pass a single computer name as a parameter, or provide
     a CSV file for bulk searching. Results will display in the console and optionally be exported
