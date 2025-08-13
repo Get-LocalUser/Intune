@@ -3,6 +3,7 @@
     - Requires RSAT: Active Directory tools installed.
     - Requires Microsoft.Graph.Beta module installed (will auto-install if missing).
     - CSV must contain a column named "Asset Tag".
+    - I Recommened installing the Microsoft.Graph.Bete module with -Verbose on it's own outside the script for best results
 
     Author:       Get-LocalUser
     Last Updated: 08/01/2025
@@ -18,8 +19,8 @@
         - Windows Autopilot via Microsoft Graph Beta API
 
     You can run the script interactively, pass a single computer name as a parameter, or provide
-    a CSV file for bulk searching. Results will display in the console and optionally be exported
-    to a CSV file in your Downloads folder.
+    a CSV file for bulk searching. Results will display in the console and be exported to a CSV
+    file in your Downloads folder if using the Bulk option.
 
 .FUNCTIONALITY
     - Imports and verifies required modules (ActiveDirectory, Microsoft.Graph.Beta).
@@ -28,7 +29,13 @@
     - Supports both interactive and automated use.
     - Outputs results with ✓ markers or 'False'.
     - Exports bulk results to CSV in the user's Downloads folder.
-    - Asks whether to disconnect from Microsoft Graph after completion.
+
+.EXAMPLE
+    - Run the script via F5 to load fucntions
+    - Run Find-Computer to display both options
+    - Run Search-SingleComputer for just one machine lookup
+    - Run Search-BulkComputers to lookup multiple computers
+
 #>
 
 # ------------------------ Module Initialization ------------------------
