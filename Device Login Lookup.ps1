@@ -8,7 +8,6 @@ Write-Host "Graph module imported successfully." -ForegroundColor Yellow
 
 Connect-MgGraph -Scopes "User.Read.All", "DeviceManagementManagedDevices.Read.All" -NoWelcome
 
-
 $deviceName = Read-Host "What is the device's hostname?"
 $device = Get-MgBetaDeviceManagementManagedDevice -Filter "contains(deviceName,'$deviceName')"
 
