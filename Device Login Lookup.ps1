@@ -1,5 +1,5 @@
 # Microsoft Graph Beta
-if (-not (Get-InstalledModule -Name Microsoft.Graph.Beta -ErrorAction SilentlyContinue)) {
+if (-not (Get-InstalledModule -Name Microsoft.Graph.Beta)) {
     Write-Host "Installing Graph module. This will take a few minutes..." -ForegroundColor Yellow
     Install-Module -Name Microsoft.Graph.Beta -Scope CurrentUser -Force -Verbose
 }
