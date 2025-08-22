@@ -5,8 +5,8 @@
     - CSV must contain a column named "Asset Tag".
     - Might add the ability to remove the device object from EntraID in the future but might just use the DeviceOffboardingManager instead from ugurkocde
 
-    Author:       Harison Kerkof
-    Last Updated: 08/05/2025
+    Author:       get-LocalUser
+    Last Updated: 08/22/2025
 
 .SYNOPSIS
     Device Deletion Script - Searches for computer records across Active Directory, Intune, & Autopilot and deletes them.
