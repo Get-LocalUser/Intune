@@ -167,17 +167,27 @@ function Delete-ComputerBulk {
     # --- File Picker UI if path not provided ---
     if (-not $CsvPath) {
         Add-Type -AssemblyName System.Windows.Forms
+
+        # Create hidden topmost form so dialog appears in foreground
+        $form = New-Object System.Windows.Forms.Form
+        $form.TopMost = $true
+        $form.WindowState = 'Minimized'
+        $form.ShowInTaskbar = $false
+
         $fileDialog = New-Object System.Windows.Forms.OpenFileDialog
         $fileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
         $fileDialog.Title = "Select the CSV file with computers to delete"
         $fileDialog.InitialDirectory = [Environment]::GetFolderPath("Desktop")
 
-        if ($fileDialog.ShowDialog() -eq "OK") {
+        if ($fileDialog.ShowDialog($form) -eq [System.Windows.Forms.DialogResult]::OK) {
             $CsvPath = $fileDialog.FileName
         } else {
             Write-Host "No file selected. Exiting bulk delete." -ForegroundColor Red
+            $form.Dispose()
             return
         }
+
+        $form.Dispose()
     }
 
     # --- Import CSV and initialize ---
@@ -295,6 +305,7 @@ function Delete-ComputerBulk {
 
     Stop-Transcript
 }
+
 
 # ------------------------------ Main Execution ------------------------------
 

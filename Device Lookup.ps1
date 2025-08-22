@@ -239,12 +239,19 @@ function Find-Computer {
         }
         "2" {
             Add-Type -AssemblyName System.Windows.Forms
+
+            # Create a hidden, topmost form to own the dialog
+            $form = New-Object System.Windows.Forms.Form
+            $form.TopMost = $true
+            $form.WindowState = 'Minimized'
+            $form.ShowInTaskbar = $false
+
             $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
             $openFileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
             $openFileDialog.Title = "Select the CSV file"
             $openFileDialog.InitialDirectory = [Environment]::GetFolderPath("Desktop")
 
-            if ($openFileDialog.ShowDialog() -eq "OK") {
+            if ($openFileDialog.ShowDialog($form) -eq [System.Windows.Forms.DialogResult]::OK) {
                 $csvPath = $openFileDialog.FileName
                 $allResults = Search-BulkComputers -CsvPath $csvPath
                 $allResults | Format-Table -AutoSize
@@ -252,13 +259,12 @@ function Find-Computer {
                 Write-Host "No file selected. Exiting." -ForegroundColor Red
                 exit
             }
-        }
-        default {
-            Write-Host "Invalid selection. Please enter 1 or 2." -ForegroundColor Red
+
+            # Clean up
+            $form.Dispose()
+            }
         }
     }
-}
-
 
 
 # ------------------------------ Main Execution ------------------------------
