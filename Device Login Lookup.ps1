@@ -20,12 +20,13 @@ if ($device) {
         $lastlogon = $user.LastLogOnDateTime
         $userobject = [PSCustomObject]@{
             UserID = $user.userid
+            PrimaryUser = $device.UserPrincipalName
             DisplayName = (Get-MgBetaUser -UserId $user.UserId).DisplayName
             LastLoggedOnDateTime = $lastLogon
         }
         $usersList += $userObject
     }
-    $usersList
+    $usersList | Format-List
 } else {
     Write-Output "Device not found."
 }
