@@ -102,13 +102,20 @@ function Search-SingleComputer {
     Write-Host "Searching for computer.." -ForegroundColor Yellow
 
     # Get AD Computer
-    $Compresults = Get-ADComputer -Filter "Name -like '*$Computer*'" -ErrorAction SilentlyContinue
+    try {
+        $Compresults = Get-ADComputer -Identity $Computer -ErrorAction Stop
+    }
+    catch {
+        $Compresults = $null
+    }
+
     if ($Compresults.Count -gt 1) {
         Write-Host "Multiple computers found in AD. Verify entries before deleting" -ForegroundColor Red
-        $compresults | ForEach-Object {"Write-Host Active Directory:$($_.Name)"} 
-    } elseif ($Compresults) {
-        $deviceresult.AD_ComputerFound       = $true
-        $deviceresult.AD_ComputerName        = $Compresults.Name
+        $Compresults | ForEach-Object { Write-Host "Active Directory:$($_.Name)" }
+    }
+    elseif ($Compresults) {
+        $deviceresult.AD_ComputerFound = $true
+        $deviceresult.AD_ComputerName  = $Compresults.Name
     }
 
     # Get Intune computer
@@ -183,7 +190,7 @@ function Search-BulkComputers {
 
         # Show progress
         Write-Host "[$counter/$($computers.Count)] $computerName" -ForegroundColor Cyan
-
+`
         $deviceInfo = Search-SingleComputer -Computer $computerName
 
         $Check = "✓"

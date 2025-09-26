@@ -134,7 +134,7 @@ function Delete-SingleComputer {
     
     Write-Host "Checking Autopilot for serial number $($matchedDevice.SerialNumber)..." -ForegroundColor Yellow
     try {
-        $autopilotDevice = Get-MgBetaDeviceManagementWindowsAutopilotDeviceIdentity -Filter "serialNumber eq '$($matchedDevice.SerialNumber)'" -ErrorAction Stop
+        $autopilotDevice = Get-MgBetaDeviceManagementWindowsAutopilotDeviceIdentity | Where-Object {$_.SerialNumber -eq $matchedDevice.SerialNumber} #Get-MgBetaDeviceManagementWindowsAutopilotDeviceIdentity -Filter "SerialNumber eq '$($matchedDevice.SerialNumber)'" -ErrorAction Stop
     } catch {
         $autopilotDevice = $null
     }
