@@ -14,7 +14,7 @@ Write-Host "   This script retrieves *Entra ID registered devices* for a user." 
 Write-Host ""
 Write-Host "⚠️  IMPORTANT:" -ForegroundColor Red
 Write-Host " - These are devices registered or joined to Entra ID (Azure AD)." -ForegroundColor White
-Write-Host " - This does NOT include Intune-managed devices or MDM enrollment data." -ForegroundColor White
+Write-Host " - This 'can' include Intune-managed devices by overlap but that is NOT its intended purpose." -ForegroundColor White
 Write-Host " - Expect to see BYOD, personal, or Azure AD joined devices that appear" -ForegroundColor White
 Write-Host "   under the user's Devices tab in the Entra admin portal." -ForegroundColor White
 Write-Host ""
