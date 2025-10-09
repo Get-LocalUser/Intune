@@ -29,6 +29,10 @@ Start-Sleep -Seconds 2
 $username = Read-Host "Enter the name of the user"
 
 $devices = Get-MgBetaUserRegisteredDevice -UserId $username
+if ($null -eq $devices) {
+    Write-Host "No devices found"`n -ForegroundColor Yellow
+    return
+}
 
 $devices | ForEach-Object {
     $props = $_.AdditionalProperties
