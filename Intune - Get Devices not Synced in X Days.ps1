@@ -8,13 +8,14 @@ Write-Host "Graph module imported successfully." -ForegroundColor Yellow
 
 Connect-MgGraph -Scopes "DeviceManagementManagedDevices.Read.All" -NoWelcome
 
-$devices = Get-MgBetaDeviceManagementManagedDevice -Filter "OperatingSystem eq 'Windows' and ComplianceState eq 'noncompliant'" | `
-    Select-Object ComplianceState, DeviceName, SerialNumber, UserDisplayName, UserPrincipalName | Sort-Object ComplianceState -Descending
+$days = (Get-Date).AddDays(-30) # Change nmumber to check sync time x days back
+$devices = Get-MgBetaDeviceManagementManagedDevice -All | Where-Object { $_.LastSyncDateTime -lt $days } | `
+    Select-Object OperatingSystem, DeviceName, SerialNumber, UserDisplayName, UserPrincipalName
 
 $question = Read-Host "Export to CSV?"
 if ($question -match "^(y|yes)$") {
     try {
-        $devices | Export-Csv -Path "$env:USERPROFILE\Downloads\NonCompliant_Devices.csv" -NoTypeInformation -ErrorAction Stop
+        $devices | Export-Csv -Path "$env:USERPROFILE\Downloads\NotSynced_Devices.csv" -NoTypeInformation -ErrorAction Stop
         Write-Host "CSV exported to $env:USERPROFILE\Downloads"
     }
     catch {
