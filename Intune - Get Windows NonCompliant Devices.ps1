@@ -8,7 +8,7 @@ Write-Host "Graph module imported successfully." -ForegroundColor Yellow
 
 Connect-MgGraph -Scopes "DeviceManagementManagedDevices.Read.All" -NoWelcome
 
-$devices = Get-MgBetaDeviceManagementManagedDevice -Filter "OperatingSystem eq 'Windows' and ComplianceState eq 'noncompliant'" | `
+$devices = Get-MgBetaDeviceManagementManagedDevice -All | Where-Object { $_.ComplianceState -eq "noncompliant" } ` |
     Select-Object ComplianceState, DeviceName, SerialNumber, UserDisplayName, UserPrincipalName | Sort-Object ComplianceState -Descending
 
 $question = Read-Host "Export to CSV?"
