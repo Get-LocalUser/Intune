@@ -10,7 +10,7 @@ if (-not (Get-InstalledModule -Name Microsoft.Graph.Beta)) {
 Import-Module Microsoft.Graph.Beta
 
 # Connect to Microsoft Graph
-Connect-MgGraph -Scopes "Device.Read.All", "DeviceManagementManagedDevices.ReadWrite.All"
+Connect-MgGraph -Scopes "Device.Read.All", "DeviceManagementManagedDevices.ReadWrite.All" -NoWelcome
 
 # Prompt for CSV file path
 $CsvFile = Read-Host "Please enter the path to your CSV file"
