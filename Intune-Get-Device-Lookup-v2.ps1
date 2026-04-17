@@ -128,7 +128,7 @@ function Search-SingleComputer {
     # Get Intune computer
     $Compresults = Get-MgBetaDeviceManagementManagedDevice -Filter "deviceName eq '$Computer'"
     if ($Compresults.Count -gt 1) {
-        Write-Host "Multiple Intune computers found. Verify entries before deleting" -ForegroundColor Red
+        Write-Host "`nMultiple Intune computers found. Verify entries before deleting`n" -ForegroundColor Red
         $compresults | ForEach-Object {Write-Host "Intune: $($_.DeviceName)"}
     } elseif ($Compresults) {
         $deviceresult.Intune_ComputerFound    = $true
