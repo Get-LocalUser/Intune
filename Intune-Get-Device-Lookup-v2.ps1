@@ -92,6 +92,7 @@ function Search-SingleComputer {
         Intune_ComputerFound    = $false
         Intune_ComputerName     = $null
         Intune_SerialNumber     = $null
+        Intune_AzureADDeviceId  = $null
 
         # Autopilot
         Autopilot_ComputerFound = $false
@@ -123,23 +124,6 @@ function Search-SingleComputer {
         $deviceresult.AD_ComputerName  = $Compresults.Name
     }
 
-    # Get Entra ID device
-    try {
-        $EntraResults = Get-MgBetaDevice -Filter "displayName eq '$Computer'" -ErrorAction Stop
-    }
-    catch {
-        $EntraResults = $null
-    }
-
-    if ($EntraResults.Count -gt 1) {
-        Write-Host "Multiple Entra ID devices found. Verify entries before deleting" -ForegroundColor Red
-        $EntraResults | ForEach-Object { Write-Host "Entra ID: $($_.DisplayName)" }
-    }
-    elseif ($EntraResults) {
-        $deviceresult.EntraID_ComputerFound = $true
-        $deviceresult.EntraID_ComputerName  = $EntraResults.DisplayName
-    }
-
     # Get Intune computer
     $Compresults = Get-MgBetaDeviceManagementManagedDevice -Filter "deviceName eq '$Computer'"
     if ($Compresults.Count -gt 1) {
@@ -149,6 +133,22 @@ function Search-SingleComputer {
         $deviceresult.Intune_ComputerFound   = $true
         $deviceresult.Intune_ComputerName    = $Compresults.DeviceName
         $deviceresult.Intune_SerialNumber    = $Compresults.SerialNumber
+        $deviceresult.Intune_AzureADDeviceId = $Compresults.AzureADDeviceId
+    }
+
+        # Get Entra ID device — matched by AzureADDeviceId attribute from Intune to avoid name duplicates. If no Entra device tied to the Intune AzureADDeviceId attribute is found this will result in nothing.
+    if ($deviceresult.Intune_AzureADDeviceId) {
+        try {
+            $EntraResults = Get-MgBetaDevice -Filter "deviceId eq '$($deviceresult.Intune_AzureADDeviceId)'" -ErrorAction Stop
+        }
+        catch {
+            $EntraResults = $null
+        }
+
+        if ($EntraResults) {
+            $deviceresult.EntraID_ComputerFound = $true
+            $deviceresult.EntraID_ComputerName  = $EntraResults.DisplayName
+        }
     }
 
     # Get Autopilot enrollment
@@ -157,7 +157,7 @@ function Search-SingleComputer {
     }
 
     if ($Compresults.Count -gt 1) {
-        Write-Host "Multiple Autopilot devices found. Verify entries before deleting" -ForegroundColor Red
+        Write-Host "`nMultiple Autopilot devices found. Verify entries before deleting" -ForegroundColor Red
         $compresults | ForEach-Object {Write-Host "Autopilot: $($_.DisplayName)"}
     } elseif ($Compresults) {
         $deviceresult.Autopilot_ComputerFound = $true
@@ -176,8 +176,8 @@ function Search-SingleComputer {
     $output = [PSCustomObject]@{
         ComputerName    = $deviceresult.InputName
         ActiveDirectory = if ($deviceresult.AD_ComputerFound)       { $Check } else { "False" }
-        EntraID         = if ($deviceresult.EntraID_ComputerFound)  { $Check } else { "False" }
         Intune          = if ($deviceresult.Intune_ComputerFound)   { $Check } else { "False" }
+        EntraID         = if ($deviceresult.EntraID_ComputerFound)  { $Check } else { "False" }
         Autopilot       = if ($deviceresult.Autopilot_ComputerFound){ $Check } else { "False" }
     }
 
@@ -220,8 +220,8 @@ function Search-BulkComputers {
         $result = [PSCustomObject]@{
             ComputerName     = $computerName
             ActiveDirectory  = if ($deviceInfo.AD_ComputerFound)       { $check } else { "False" }
-            EntraID          = if ($deviceInfo.EntraID_ComputerFound)  { $check } else { "False" }
             Intune           = if ($deviceInfo.Intune_ComputerFound)   { $check } else { "False" }
+            EntraID          = if ($deviceInfo.EntraID_ComputerFound)  { $check } else { "False" }
             Autopilot        = if ($deviceInfo.Autopilot_ComputerFound){ $check } else { "False" }
         }
 
@@ -243,6 +243,8 @@ function Search-BulkComputers {
         [System.IO.File]::WriteAllText($ExportFile, $csvContent, $Utf8WithBom)
         Write-Host "`nResults exported to: $ExportFile" -ForegroundColor Yellow
         Write-Host "`nOpen in Excel for best visual." -ForegroundColor Magenta
+        Write-Host "`nNote: An Entra ID object is only returned when a matching Intune object exists." -ForegroundColor Blue
+        Write-Host "If no Intune object exists, the result will be null. This prevents mismatches when multiple objects share the same name." -ForegroundColor Blue
     }
     else {
         Write-Host "Not exported" -ForegroundColor Yellow
