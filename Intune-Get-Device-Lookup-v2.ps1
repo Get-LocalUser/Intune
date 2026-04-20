@@ -152,6 +152,7 @@ function Search-SingleComputer {
     }
 
     # Get Autopilot enrollment
+    $Compresults = $null
     if ($deviceresult.Intune_SerialNumber) {
         $Compresults = Get-MgBetaDeviceManagementWindowsAutopilotDeviceIdentity -ErrorAction SilentlyContinue | Where-Object { $_.SerialNumber -eq $deviceresult.Intune_SerialNumber }
     }
@@ -243,8 +244,8 @@ function Search-BulkComputers {
         [System.IO.File]::WriteAllText($ExportFile, $csvContent, $Utf8WithBom)
         Write-Host "`nResults exported to: $ExportFile" -ForegroundColor Yellow
         Write-Host "`nOpen in Excel for best visual." -ForegroundColor Magenta
-        Write-Host "`nNote: An Entra ID object is only returned when a matching Intune object exists." -ForegroundColor Blue
-        Write-Host "If no Intune object exists, the result will be null. This prevents mismatches when multiple objects share the same name." -ForegroundColor Blue
+        Write-Host "`nNote: An Entra ID object is returned only when a matching Intune object with the same AzureADDeviceId attribute exists." -ForegroundColor Blue
+        Write-Host "If no matching Intune object exists, the result is null. This avoids conflicts when names are duplicated." -ForegroundColor Blue
     }
     else {
         Write-Host "Not exported" -ForegroundColor Yellow
