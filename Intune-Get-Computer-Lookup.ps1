@@ -6,15 +6,16 @@
     - I Recommened installing the Microsoft.Graph.Bete module with -Verbose on it's own outside the script for best results
 
     Author:       Get-LocalUser
-    Last Updated: 08/01/2025
+    Last Updated: 04/2x/2026
 
 .SYNOPSIS
-    Device Lookup Script - Searches for computer records across Active Directory, Intune, & Autopilot.
+    Device Lookup Script - Searches for computer records across Active Directory, Entra ID, Intune, & Autopilot.
 
 .DESCRIPTION
     This script allows administrators to search for one or more devices by name or asset tag
-    across three platforms:
+    across four platforms:
         - Active Directory
+        - Entra ID (Azure AD)
         - Intune
         - Autopilot
 
@@ -25,7 +26,7 @@
 .FUNCTIONALITY
     - Imports and verifies required modules (ActiveDirectory, Microsoft.Graph.Beta).
     - Connects to Microsoft Graph ('Device.Read.All' scope required).
-    - Searches for devices across AD, Intune, & Autopilot.
+    - Searches for devices across AD, Entra ID, Intune, & Autopilot.
     - Supports both interactive and automated use.
     - Outputs results with ✓ markers or 'False'.
     - Exports bulk results to CSV in the user's Downloads folder.
@@ -83,16 +84,21 @@ function Search-SingleComputer {
         AD_ComputerFound        = $false
         AD_ComputerName         = $null
 
+        # Entra ID
+        EntraID_ComputerFound   = $false
+        EntraID_ComputerName    = $null
+
         # Intune
         Intune_ComputerFound    = $false
         Intune_ComputerName     = $null
         Intune_SerialNumber     = $null
+        Intune_AzureADDeviceId  = $null
 
         # Autopilot
         Autopilot_ComputerFound = $false
         Autopilot_SerialNumber  = $null
     }
-    
+
 
     # Enter computer name
     if (-not $Computer) {
@@ -121,22 +127,39 @@ function Search-SingleComputer {
     # Get Intune computer
     $Compresults = Get-MgBetaDeviceManagementManagedDevice -Filter "deviceName eq '$Computer'"
     if ($Compresults.Count -gt 1) {
-        Write-Host "Multiple Intune computers found. Verify entries before deleting" -ForegroundColor Red
-        $compresults | ForEach-Object {Write-Host "Intune: $($_.DeviceName)"} 
+        Write-Host "`nMultiple Intune computers found. Verify entries before deleting`n" -ForegroundColor Red
+        $compresults | ForEach-Object {Write-Host "Intune: $($_.DeviceName)"}
     } elseif ($Compresults) {
         $deviceresult.Intune_ComputerFound   = $true
         $deviceresult.Intune_ComputerName    = $Compresults.DeviceName
         $deviceresult.Intune_SerialNumber    = $Compresults.SerialNumber
+        $deviceresult.Intune_AzureADDeviceId = $Compresults.AzureADDeviceId
+    }
+
+        # Get Entra ID device — matched by AzureADDeviceId attribute from Intune to avoid name duplicates. If no Entra device tied to the Intune AzureADDeviceId attribute is found this will result in nothing.
+    if ($deviceresult.Intune_AzureADDeviceId) {
+        try {
+            $EntraResults = Get-MgBetaDevice -Filter "deviceId eq '$($deviceresult.Intune_AzureADDeviceId)'" -ErrorAction Stop
+        }
+        catch {
+            $EntraResults = $null
+        }
+
+        if ($EntraResults) {
+            $deviceresult.EntraID_ComputerFound = $true
+            $deviceresult.EntraID_ComputerName  = $EntraResults.DisplayName
+        }
     }
 
     # Get Autopilot enrollment
+    $Compresults = $null
     if ($deviceresult.Intune_SerialNumber) {
         $Compresults = Get-MgBetaDeviceManagementWindowsAutopilotDeviceIdentity -ErrorAction SilentlyContinue | Where-Object { $_.SerialNumber -eq $deviceresult.Intune_SerialNumber }
     }
-    
+
     if ($Compresults.Count -gt 1) {
-        Write-Host "Multiple Autopilot devices found. Verify entries before deleting" -ForegroundColor Red
-        $compresults | ForEach-Object {Write-Host "Autopilot: $($_.DisplayName)"} 
+        Write-Host "`nMultiple Autopilot devices found. Verify entries before deleting" -ForegroundColor Red
+        $compresults | ForEach-Object {Write-Host "Autopilot: $($_.DisplayName)"}
     } elseif ($Compresults) {
         $deviceresult.Autopilot_ComputerFound = $true
         $deviceresult.Autopilot_SerialNumber  = $Compresults.SerialNumber
@@ -144,9 +167,9 @@ function Search-SingleComputer {
 
 
     # Display results of previous checks
-    if ($deviceresult.AD_ComputerFound -or $deviceresult.Intune_ComputerFound -or $deviceresult.Autopilot_ComputerFound) {
+    if ($deviceresult.AD_ComputerFound -or $deviceresult.EntraID_ComputerFound -or $deviceresult.Intune_ComputerFound -or $deviceresult.Autopilot_ComputerFound) {
         Write-Host "Device found in one or more systems." -ForegroundColor Yellow
-    } else { 
+    } else {
         Write-Host "No devices found in any system." -ForegroundColor Red
     }
 
@@ -155,6 +178,7 @@ function Search-SingleComputer {
         ComputerName    = $deviceresult.InputName
         ActiveDirectory = if ($deviceresult.AD_ComputerFound)       { $Check } else { "False" }
         Intune          = if ($deviceresult.Intune_ComputerFound)   { $Check } else { "False" }
+        EntraID         = if ($deviceresult.EntraID_ComputerFound)  { $Check } else { "False" }
         Autopilot       = if ($deviceresult.Autopilot_ComputerFound){ $Check } else { "False" }
     }
 
@@ -190,7 +214,7 @@ function Search-BulkComputers {
 
         # Show progress
         Write-Host "[$counter/$($computers.Count)] $computerName" -ForegroundColor Cyan
-`
+
         $deviceInfo = Search-SingleComputer -Computer $computerName
 
         $Check = "✓"
@@ -198,6 +222,7 @@ function Search-BulkComputers {
             ComputerName     = $computerName
             ActiveDirectory  = if ($deviceInfo.AD_ComputerFound)       { $check } else { "False" }
             Intune           = if ($deviceInfo.Intune_ComputerFound)   { $check } else { "False" }
+            EntraID          = if ($deviceInfo.EntraID_ComputerFound)  { $check } else { "False" }
             Autopilot        = if ($deviceInfo.Autopilot_ComputerFound){ $check } else { "False" }
         }
 
@@ -213,12 +238,14 @@ function Search-BulkComputers {
     $Pathway = "C:\Users\$env:USERNAME\Downloads\"
     $ExportFile = Join-Path -Path $Pathway -ChildPath "Computersfound.csv"
 
-    if ($results) { 
+    if ($results) {
         $Utf8WithBom = New-Object System.Text.UTF8Encoding $true
         $csvContent = $results | ConvertTo-Csv -NoTypeInformation | Out-String
         [System.IO.File]::WriteAllText($ExportFile, $csvContent, $Utf8WithBom)
         Write-Host "`nResults exported to: $ExportFile" -ForegroundColor Yellow
         Write-Host "`nOpen in Excel for best visual." -ForegroundColor Magenta
+        Write-Host "`nNote: An Entra ID object is returned only when a matching Intune object with the same AzureADDeviceId attribute exists." -ForegroundColor Blue
+        Write-Host "If no matching Intune object exists, the result is null. This avoids conflicts when names are duplicated." -ForegroundColor Blue
     }
     else {
         Write-Host "Not exported" -ForegroundColor Yellow
