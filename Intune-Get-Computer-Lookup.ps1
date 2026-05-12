@@ -9,13 +9,13 @@
     Last Updated: 04/2x/2026
 
 .SYNOPSIS
-    Device Lookup Script - Searches for computer records across Active Directory, Entra ID, Intune, & Autopilot.
+    Device Lookup Script - Searches for computer records across Active Directory, EntraID, Intune, & Autopilot.
 
 .DESCRIPTION
     This script allows administrators to search for one or more devices by name or asset tag
     across four platforms:
         - Active Directory
-        - Entra ID (Azure AD)
+        - EntraID
         - Intune
         - Autopilot
 

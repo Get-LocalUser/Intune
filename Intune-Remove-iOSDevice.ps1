@@ -246,7 +246,7 @@ function Remove-BulkiOSDevices {
 function Remove-iOSDevice {
     Write-Host "`nSelect Removal Mode:" -ForegroundColor Cyan
     Write-Host "1. Remove Single iOS Device by Serial"
-    Write-Host "2. Remove Bulk from CSV (column: 'Serial Number')"
+    Write-Host "2. Remove Bulk from CSV (column: 'Serial')"
     $choice = Read-Host "Enter your choice (1 or 2)"
 
     switch ($choice) {
