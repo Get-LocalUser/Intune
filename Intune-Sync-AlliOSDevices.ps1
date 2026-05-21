@@ -1,5 +1,5 @@
 # Sync iOS devices
-Import-Module -Name "Microsoft.Graph.Beta"
+Import-Module -Name "Microsoft.Graph.Beta" -ErrorAction Ignore
 Connect-MgGraph -Scope "DeviceManagementManagedDevices.PrivilegedOperations.All", "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementManagedDevices.Read.All" -NoWelcome
  
 $Devices = Get-MgBetaDeviceManagementManagedDevice -Filter "contains(operatingsystem, 'iOS')" -All
