@@ -14,13 +14,9 @@
     This script allows administrators to search and delete one or more devices by name or asset tag
     across four platforms:
         - Active Directory
-        - Microsoft Intune via Microsoft Graph Beta API
-        - Entra ID (Azure AD)
-        - Windows Autopilot via Microsoft Graph Beta API
-
-    You can run the script interactively, pass a single computer name as a parameter, or provide
-    a CSV file for bulk searching. Results will display in the console and optionally be exported
-    to a CSV file in your Downloads folder.
+        - Intune
+        - Entra ID
+        - Autopilot
 
 .FUNCTIONALITY
     - Imports and verifies required modules (ActiveDirectory, Microsoft.Graph.Beta).
@@ -79,7 +75,7 @@ function Initialize-Modules {
 function Delete-SingleComputer {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true, HelpMessage = "Type in the P number/hostname of the computer")]
+        [Parameter(Mandatory = $true)]
         [string]$assetTag
     )
 
