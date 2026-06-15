@@ -7,9 +7,6 @@
     Author:       Get-LocalUser
     Last Updated: 04/21/2026
 
-.SYNOPSIS
-    Device Deletion Script V2 - Searches for computer records across Active Directory, Intune, & EntraID and deletes them.
-
 .DESCRIPTION
     This script allows administrators to search and delete one or more devices by name or asset tag
     across three platforms:
@@ -19,12 +16,10 @@
 
 .FUNCTIONALITY
     - Imports and verifies required modules (ActiveDirectory, Microsoft.Graph.Beta).
-    - Connects to Microsoft Graph ("DeviceManagementServiceConfig.Read.All", "DeviceManagementServiceConfig.ReadWrite.All" scopes required).
-    - Searches for and deletes devices across AD, Intune, & EntraID.
+    - Connects to Microsoft Graph ("DeviceManagementServiceConfig.Read.All", "DeviceManagementServiceConfig.ReadWrite.All", "Device.Read.All", "Device.ReadWrite.All" scopes required).
     - Supports both interactive and automated use.
     - Outputs results with ✓ markers or 'False'.
     - Exports bulk results to CSV in the user's Downloads folder.
-    - Asks whether to disconnect from Microsoft Graph after completion.
 #>
 
 
@@ -295,7 +290,36 @@ function Delete-ComputerBulk {
 }
 
 
+function Delete-Computer {
+    Write-Host "`nSelect Delete Mode:" -ForegroundColor Cyan
+    Write-Host "1. Delete Single Computer"
+    Write-Host "2. Delete Bulk from CSV"
+    $choice = Read-Host "Enter your choice (1 or 2)"
+
+    switch ($choice) {
+        "1" {
+            $computer = Read-Host "Enter the name of the device you want to delete"
+            if ([string]::IsNullOrWhiteSpace($computer)) {
+                Write-Host "No computer name provided. Exiting." -ForegroundColor Red
+                return
+            }
+            Delete-SingleComputer -assetTag $computer
+        }
+        "2" {
+            Delete-ComputerBulk
+        }
+        default {
+            Write-Host "Invalid choice. Please run Delete-Computer again and enter 1 or 2." -ForegroundColor Red
+        }
+    }
+}
+
+
 # ------------------------------ Main Execution ------------------------------
 
 # Step 1: Initialize modules first
 Initialize-Modules
+
+Delete-Computer
+
+Stop-Transcript

@@ -354,8 +354,34 @@ function Delete-ComputerBulk {
     Stop-Transcript
 }
 
+function Delete-Computer {
+    Write-Host "`nSelect Delete Mode:" -ForegroundColor Cyan
+    Write-Host "1. Delete Single Computer"
+    Write-Host "2. Delete Bulk from CSV"
+    $choice = Read-Host "Enter your choice (1 or 2)"
+
+    switch ($choice) {
+        "1" {
+            $computer = Read-Host "Enter the name of the device you want to delete"
+            if ([string]::IsNullOrWhiteSpace($computer)) {
+                Write-Host "No computer name provided. Exiting." -ForegroundColor Red
+                return
+            }
+            Delete-SingleComputer -assetTag $computer
+        }
+        "2" {
+            Delete-ComputerBulk
+        }
+        default {
+            Write-Host "Invalid choice. Please run Delete-Computer again and enter 1 or 2." -ForegroundColor Red
+        }
+    }
+}
+
 
 # ------------------------------ Main Execution ------------------------------
 
 # Step 1: Initialize modules first
 Initialize-Modules
+
+Delete-Computer
