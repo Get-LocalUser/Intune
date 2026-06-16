@@ -17,7 +17,7 @@
     It constructs the Intune device name using the pattern "iPhone-{Serial}-NamedUser" and
     searches across:
         - Intune
-        - Entra ID (Azure AD)
+        - Entra ID
 
     You can run the script interactively, pass a single serial number as a parameter, or provide
     a CSV file for bulk searching. Results will display in the console and be exported to a CSV
