@@ -86,7 +86,7 @@ function Delete-SingleComputer {
     } else {
         Write-Host "$assetTag found in Active Directory" -ForegroundColor Yellow
         try {
-            Remove-ADObject -Identity $adComputer.DistinguishedName -Recursive -Confirm:$true -ErrorAction Stop
+            Remove-ADObject -Identity $adComputer.DistinguishedName -Recursive -Confirm:$false -ErrorAction Stop
             Write-Host "$assetTag Deleted from AD" -ForegroundColor Green
         } catch {
             Write-Host "Failed to delete $assetTag from AD" -ForegroundColor Red
