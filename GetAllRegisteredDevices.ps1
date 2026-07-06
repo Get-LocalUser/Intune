@@ -12,8 +12,8 @@ Connect-MgGraph -Scopes "Directory.Read.All" -NoWelcome
 Write-Host "------------------------------------------------------------" -ForegroundColor Cyan
 Write-Host "⚠️  IMPORTANT:" -ForegroundColor Red
 Write-Host " - These are devices registered or joined to Entra ID." -ForegroundColor White
-Write-Host " - This 'can' include Intune-managed devices by overlap or devices that are no longer managed in SnoPUD." -ForegroundColor White
-Write-Host " - Expect to see BYOD, personal, or Azure AD joined devices that appear" -ForegroundColor White
+Write-Host " - This 'can' include Intune-managed devices by overlap or devices that are no longer managed." -ForegroundColor White
+Write-Host " - Expect to see BYOD, personal, or Azure AD joined devices " -ForegroundColor White
 Write-Host "   under the user's Devices tab in the Entra admin portal." -ForegroundColor White
 Write-Host ""
 Write-Host " - In short: This shows identity-level registrations (Entra), not" -ForegroundColor White
