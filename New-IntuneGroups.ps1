@@ -19,10 +19,7 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory)]
-    [bool]$TestGroup,
-
-    [Parameter(Mandatory)]
-    [bool]$ConfigurationProfile
+    [bool]$TestGroup
 )
 
 
@@ -101,23 +98,6 @@ $ExclusionGroup = New-MgBetaGroup `
 Write-Host "Created:" $ExclusionGroup.DisplayName `
     "[$($ExclusionGroup.Id)]" `
     -ForegroundColor Green
-
-
-
-# ============================================================
-# CREATE CONFIGURATION PROFILE
-# ============================================================
-
-if ($ConfigurationProfile) {
-
-    $Profile = New-MgBetaDeviceManagementConfigurationPolicy `
-    -Name $ProfileName `
-    -Description "" `
-    -Platforms "windows10" `
-    -Technologies "mdm"
-
-}
-
 
 # ============================================================
 # OUTPUT
