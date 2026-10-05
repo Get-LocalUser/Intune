@@ -19,7 +19,8 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory)]
-    [bool]$TestGroup
+    [ValidateSet("True", "False")]
+    [string]$TestGroup
 )
 
 
@@ -28,11 +29,11 @@ param(
 # ============================================================
 
 
-if ($TestGroup) {
+if ($TestGroup -like "True") {
     $TestGroupPrefix = "$($Initials.ToUpper())-TEST-"
 }
 else {
-    $TestGroupPrefix = ""
+    $TestGroupPrefix = $null
 }
 
 switch ($Platform.ToLower()) {
