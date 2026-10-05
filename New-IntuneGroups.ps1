@@ -1,37 +1,50 @@
 # ============================================================
+# PARAMS
+# ============================================================
+
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)]
+    [ValidatePattern('^[A-Za-z]+$')]
+    [string]$Initials,
+
+    [Parameter(Mandatory)]
+    [ValidateSet("Windows", "iOS")]
+    [string]$Platform,
+
+    [Parameter(Mandatory)]
+    [string]$ProfileName,
+
+    [Parameter(Mandatory)]
+    [string]$Description,
+
+    [Parameter(Mandatory)]
+    [bool]$TestGroup,
+
+    [Parameter(Mandatory)]
+    [bool]$ConfigurationProfile
+)
+
+
+# ============================================================
 # CONFIGURATION
 # ============================================================
 
-do {
-    $TestGroup = Read-Host "Is this a test group? [Y/N]"
-    $TestGroup = $TestGroup.ToUpper()
-} while ($TestGroup -notin @("Y", "N")) 
-if ($TestGroup.Contains("Y")) {$TestGroup = "HRK-TEST-"} else {
-    $TestGroup = $null
+
+if ($TestGroup) {
+    $TestGroupPrefix = "$($Initials.ToUpper())-TEST-"
+}
+else {
+    $TestGroupPrefix = ""
 }
 
-$PrefixSelection = Read-Host "Windows or iOS Profile?"
-
-switch ($PrefixSelection.ToLower()) {
-    "windows" {$GroupNamePrefix = "Win"}
-    "ios" {$GroupNamePrefix = "iOS"}
-
-    Default {
-        Write-Host "Invalid selection. Please enter Windows or iOS." -ForegroundColor Red
-        exit
-    }
+switch ($Platform.ToLower()) {
+    {$_ -in @("windows", "win")} {$GroupNamePrefix = "Win"}
+    {$_ -in @("ios")} {$GroupNamePrefix = "iOS"}
 }
-
-
-# Change these values for each configuration profile
-$ProfileName = Read-Host "Enter Configuration Profile name. PREFIX will be added automatically"
-
-# Optional description
-$GroupDescription = Read-Host "Enter group description"
-
 
 # ============================================================
-# CONNECT TO MICROSOFT GRAPH
+# CONNECT TO GRAPH
 # ============================================================
 
 Connect-MgGraph -Scopes "Group.ReadWrite.All" -NoWelcome
@@ -41,8 +54,9 @@ Connect-MgGraph -Scopes "Group.ReadWrite.All" -NoWelcome
 # ============================================================
 
 
-$AssignmentGroupName = "$TestGroup$GroupNamePrefix-$ProfileName"
-$ExclusionGroupName = "$TestGroup$GroupNamePrefix-$ProfileName-EXCLUSION"
+$AssignmentGroupName = "$TestGroupPrefix$GroupNamePrefix-$ProfileName"
+$ExclusionGroupName = "$TestGroupPrefix$GroupNamePrefix-$ProfileName-EXCLUSION"
+
 
 $AssignmentGroupMailNickname = (
     "$GroupNamePrefix-$ProfileName-Assignment"
@@ -61,7 +75,7 @@ Write-Host "Creating assignment group..." -ForegroundColor Cyan
 
 $AssignmentGroup = New-MgBetaGroup `
     -DisplayName $AssignmentGroupName `
-    -Description $GroupDescription `
+    -Description $Description `
     -MailEnabled:$false `
     -MailNickname $AssignmentGroupMailNickname `
     -SecurityEnabled:$true
@@ -79,7 +93,7 @@ Write-Host "Creating exclusion group..." -ForegroundColor Cyan
 
 $ExclusionGroup = New-MgBetaGroup `
     -DisplayName $ExclusionGroupName `
-    -Description $GroupDescription `
+    -Description $Description `
     -MailEnabled:$false `
     -MailNickname $ExclusionGroupMailNickname `
     -SecurityEnabled:$true
@@ -87,6 +101,22 @@ $ExclusionGroup = New-MgBetaGroup `
 Write-Host "Created:" $ExclusionGroup.DisplayName `
     "[$($ExclusionGroup.Id)]" `
     -ForegroundColor Green
+
+
+
+# ============================================================
+# CREATE CONFIGURATION PROFILE
+# ============================================================
+
+if ($ConfigurationProfile) {
+
+    $Profile = New-MgBetaDeviceManagementConfigurationPolicy `
+    -Name $ProfileName `
+    -Description "" `
+    -Platforms "windows10" `
+    -Technologies "mdm"
+
+}
 
 
 # ============================================================
