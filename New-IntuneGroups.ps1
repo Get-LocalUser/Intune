@@ -9,7 +9,7 @@ param(
     [string]$Initials,
 
     [Parameter(Mandatory)]
-    [ValidateSet("Windows", "iOS")]
+    [ValidateSet("Windows", "Win", "iOS")]
     [string]$Platform,
 
     [Parameter(Mandatory)]
@@ -19,7 +19,7 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory)]
-    [ValidateSet("True", "False")]
+    [ValidateSet("True", "False", "Yes")]
     [string]$TestGroup
 )
 
@@ -29,7 +29,7 @@ param(
 # ============================================================
 
 
-if ($TestGroup -like "True") {
+if ($TestGroup -in @("True", "Yes")) {
     $TestGroupPrefix = "$($Initials.ToUpper())-TEST-"
 }
 else {
