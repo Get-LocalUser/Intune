@@ -5,8 +5,16 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [ValidateSet("Windows", "Win", "iOS")]
+    [ValidateSet("Intune", "Exchange", "Entra", "SharePoint", "Defender", "Purview")]
+    [string]$Portal,
+
+    [Parameter(Mandatory)]
+    [ValidateSet("Windows", "Win", "iOS", "macOS")]
     [string]$Platform,
+
+    [Parameter(Mandatory)]
+    [ValidateSet("User", "Device")]
+    [string]$Target,
 
     [Parameter(Mandatory)]
     [string]$GroupName,
@@ -40,6 +48,7 @@ else {
 switch ($Platform.ToLower()) {
     {$_ -in @("windows", "win")} {$GroupNamePrefix = "Win"}
     {$_ -in @("ios")} {$GroupNamePrefix = "iOS"}
+    {$_ -in @("macos")} {$GroupNamePrefix = "macOS"}
 }
 
 # ============================================================
@@ -52,17 +61,20 @@ Connect-MgGraph -Scopes "Group.ReadWrite.All" -NoWelcome
 # CREATE GROUP NAMES
 # ============================================================
 
+$GroupName = $GroupName.Trim()
 
-$AssignmentGroupName = "$TestGroupPrefix$GroupNamePrefix-$GroupName"
-$ExclusionGroupName = "$TestGroupPrefix$GroupNamePrefix-$GroupName-EXCLUSION"
+# Format: [INITIALS-TEST-]Portal-Platform-Target-GroupName
+# Example: HRK-TEST-Intune-Win-Device-The New Test Group Again
+$AssignmentGroupName = "$TestGroupPrefix$Portal-$GroupNamePrefix-$Target-$GroupName"
+$ExclusionGroupName = "$TestGroupPrefix$Portal-$GroupNamePrefix-$Target-$GroupName-EXCLUSION"
 
 
 $AssignmentGroupMailNickname = (
-    "$GroupNamePrefix-$GroupName-Assignment"
+    "$Portal-$GroupNamePrefix-$Target-$GroupName-Assignment"
 ) -replace '[^a-zA-Z0-9]', ''
 
 $ExclusionGroupMailNickname = (
-    "$GroupNamePrefix-$GroupName-Exclusion"
+    "$Portal-$GroupNamePrefix-$Target-$GroupName-Exclusion"
 ) -replace '[^a-zA-Z0-9]', ''
 
 
@@ -101,7 +113,6 @@ Write-Host "Created:" $ExclusionGroup.DisplayName `
     -ForegroundColor Green
 
 
-
 # ============================================================
 # Add Owner to Groups
 # ============================================================   
@@ -135,6 +146,8 @@ Write-Host ""
 Write-Host "GROUPS CREATED"
 Write-Host "──────────────────────────────────────────────────────────" -ForegroundColor DarkGray
 [PSCustomObject]@{
+    Portal               = $Portal
+    Target               = $Target
     GroupName            = $GroupName
     AssignmentGroup      = $AssignmentGroup.DisplayName
     AssignmentGroupId    = $AssignmentGroup.Id
