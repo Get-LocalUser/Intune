@@ -9,7 +9,7 @@ param(
     [string]$Platform,
 
     [Parameter(Mandatory)]
-    [string]$ProfileName,
+    [string]$GroupName,
 
     [Parameter(Mandatory)]
     [string]$Description,
@@ -18,7 +18,7 @@ param(
     [ValidateSet("True", "False", "Yes", "No")]
     [string]$TestGroup,
 
-    [Parameter]
+    [Parameter()]
     [ValidatePattern('^[A-Za-z]+$')]
     [string]$Initials
 )
@@ -53,16 +53,16 @@ Connect-MgGraph -Scopes "Group.ReadWrite.All" -NoWelcome
 # ============================================================
 
 
-$AssignmentGroupName = "$TestGroupPrefix$GroupNamePrefix-$ProfileName"
-$ExclusionGroupName = "$TestGroupPrefix$GroupNamePrefix-$ProfileName-EXCLUSION"
+$AssignmentGroupName = "$TestGroupPrefix$GroupNamePrefix-$GroupName"
+$ExclusionGroupName = "$TestGroupPrefix$GroupNamePrefix-$GroupName-EXCLUSION"
 
 
 $AssignmentGroupMailNickname = (
-    "$GroupNamePrefix-$ProfileName-Assignment"
+    "$GroupNamePrefix-$GroupName-Assignment"
 ) -replace '[^a-zA-Z0-9]', ''
 
 $ExclusionGroupMailNickname = (
-    "$GroupNamePrefix-$ProfileName-Exclusion"
+    "$GroupNamePrefix-$GroupName-Exclusion"
 ) -replace '[^a-zA-Z0-9]', ''
 
 
@@ -135,7 +135,7 @@ Write-Host ""
 Write-Host "GROUPS CREATED"
 Write-Host "──────────────────────────────────────────────────────────" -ForegroundColor DarkGray
 [PSCustomObject]@{
-    ProfileName          = $ProfileName
+    GroupName            = $GroupName
     AssignmentGroup      = $AssignmentGroup.DisplayName
     AssignmentGroupId    = $AssignmentGroup.Id
     AssignmentGroupOwner = ($AssignmentOwners | ForEach-Object { $_.AdditionalProperties.userPrincipalName }) -join ", "
