@@ -15,7 +15,7 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory)]
-    [ValidateSet("True", "False", "Yes")]
+    [ValidateSet("True", "False", "Yes", "No")]
     [string]$TestGroup,
 
     [Parameter]
@@ -92,7 +92,6 @@ Write-Host "Creating exclusion group..." -ForegroundColor Cyan
 
 $ExclusionGroup = New-MgBetaGroup `
     -DisplayName $ExclusionGroupName `
-    -Description $Description `
     -MailEnabled:$false `
     -MailNickname $ExclusionGroupMailNickname `
     -SecurityEnabled:$true
@@ -101,19 +100,46 @@ Write-Host "Created:" $ExclusionGroup.DisplayName `
     "[$($ExclusionGroup.Id)]" `
     -ForegroundColor Green
 
+
+
+# ============================================================
+# Add Owner to Groups
+# ============================================================   
+
+$CloudUser = Get-MgBetaUser -UserId (Get-MgContext).Account
+
+Write-Host "`nAssigning '$($CloudUser.UserPrincipalName)' as owner of newly created groups" -ForegroundColor Yellow
+
+$OwnerReference = @{
+    "@odata.id" = "https://graph.microsoft.com/beta/users/$($CloudUser.Id)"
+}
+
+New-MgBetaGroupOwnerByRef `
+    -GroupId $AssignmentGroup.Id `
+    -BodyParameter $OwnerReference
+
+New-MgBetaGroupOwnerByRef `
+    -GroupId $ExclusionGroup.Id `
+    -BodyParameter $OwnerReference
+
+
+$AssignmentOwners = Get-MgBetaGroupOwner -GroupId $AssignmentGroup.Id
+$ExclusionOwners = Get-MgBetaGroupOwner -GroupId $ExclusionGroup.Id
+
+
 # ============================================================
 # OUTPUT
 # ============================================================
 
 Write-Host ""
-Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "Groups Created" -ForegroundColor Cyan
-Write-Host "============================================" -ForegroundColor Cyan
-
+Write-Host "GROUPS CREATED"
+Write-Host "──────────────────────────────────────────────────────────" -ForegroundColor DarkGray
 [PSCustomObject]@{
-    ProfileName       = $ProfileName
-    AssignmentGroup   = $AssignmentGroup.DisplayName
-    AssignmentGroupId = $AssignmentGroup.Id
-    ExclusionGroup    = $ExclusionGroup.DisplayName
-    ExclusionGroupId  = $ExclusionGroup.Id
+    ProfileName          = $ProfileName
+    AssignmentGroup      = $AssignmentGroup.DisplayName
+    AssignmentGroupId    = $AssignmentGroup.Id
+    AssignmentGroupOwner = ($AssignmentOwners | ForEach-Object { $_.AdditionalProperties.userPrincipalName }) -join ", "
+    ExclusionGroup       = $ExclusionGroup.DisplayName
+    ExclusionGroupId     = $ExclusionGroup.Id
+    ExclusionGroupOwner  = ($ExclusionOwners | ForEach-Object { $_.AdditionalProperties.userPrincipalName }) -join ", "
 }
