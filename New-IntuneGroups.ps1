@@ -1,3 +1,11 @@
+<#
+.DESCRIPTION
+Creates an assignment group and a corresponding exclusion group based on the
+specified portal, platform, target, and group name. Connects to Microsoft Graph, assigns the
+signed-in user as group owner, and outputs the created group details and IDs.
+#>
+
+
 # ============================================================
 # PARAMS
 # ============================================================
