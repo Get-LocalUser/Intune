@@ -5,10 +5,6 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [ValidatePattern('^[A-Za-z]+$')]
-    [string]$Initials,
-
-    [Parameter(Mandatory)]
     [ValidateSet("Windows", "Win", "iOS")]
     [string]$Platform,
 
@@ -20,7 +16,11 @@ param(
 
     [Parameter(Mandatory)]
     [ValidateSet("True", "False", "Yes")]
-    [string]$TestGroup
+    [string]$TestGroup,
+
+    [Parameter]
+    [ValidatePattern('^[A-Za-z]+$')]
+    [string]$Initials
 )
 
 
@@ -30,6 +30,7 @@ param(
 
 
 if ($TestGroup -in @("True", "Yes")) {
+    $Initials = Read-Host "Enter initials"
     $TestGroupPrefix = "$($Initials.ToUpper())-TEST-"
 }
 else {
